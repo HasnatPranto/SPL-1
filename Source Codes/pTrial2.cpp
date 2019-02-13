@@ -1,4 +1,4 @@
-//Works for pdf version 1.1 only
+//successfully tested with "sample.pdf", which was NOT FILTERED
 #include<iostream>
 #include<fstream>
 

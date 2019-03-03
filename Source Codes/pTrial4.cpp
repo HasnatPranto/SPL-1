@@ -440,9 +440,9 @@ void getChunk(string str)
 
 int main()
 {
-	string s,tm0="",newtmp="",oldtmp,title,author,w;
+	string s,tm0="",newtmp="",oldtmp,title,author;
 	int i=0,j=0,cit=1;
-	bool fl=0,hbjb=0,t=0,au=0, f=1,ci=0,ic=1,b=0,e=0;
+	bool fl=0,hbjb=0,t=0,f=1,ci=0,ad=0;
 	vector<int> citations;
 	
 	iFile.open("/home/pranto/Desktop/New/SPL-1/rawtext4.txt");
@@ -579,7 +579,7 @@ int main()
        		 			hbjb=1;
        		 			break;
        		 	}
-       		 	else if(word[word.length()-1]==',')
+       		 	else if(word[word.length()-1]==',' && ad==0)
        		 	{ 
        		 		newtmp+=("<address>"+oldtmp+"</address>");
        		 			oFile << newtmp << endl;
@@ -593,6 +593,7 @@ int main()
        		 			oFile << newtmp << endl;
        		 			newtmp="";
        		 			hbjb=1;
+					ad=1;
 
        		 	}
        		 		
@@ -633,11 +634,13 @@ int main()
        		 		newtmp="";	
        		 	}
 			       		 
-       		 else tm0="";	
-       		 
-       		 getline(iFile,s);
+       		 	else tm0="";	
        		
-       		 oldtmp=s;	 		
+			ad=0;
+       		 
+			getline(iFile,s);
+       		
+       		 	oldtmp=s;	 		
 			}
 		
 			while(!iFile.eof()){
@@ -647,11 +650,8 @@ int main()
 				if((s=="References"||s=="Reference"||s=="REFERENCES"||s=="REFERENCE"))
 					break;
 				
-				f=1,ci=0,ic=1,b=0,e=0;
+				f=1,ci=0;
 				tm0="";
-				newtmp="";
-				
-				istringstream ics(s);
 				
 					for(i=0;i<s.length();i++)
 					{

@@ -1,3 +1,4 @@
+/* To show the name of the persons who has been cited by another authors using 2D vector */ 
 #include<bits/stdc++.h>
 #define pb push_back
 using namespace std;
@@ -6,8 +7,6 @@ vector< vector<string>> citmap;
 vector<string> authors;
 vector<string> citedAuthors;
 set<string> q;
-vector<string>:: iterator it;
-
 
 void ExpandMapFromReferred(vector<string> authors,vector<string>citedAuthors)
 {
@@ -43,9 +42,7 @@ void ExpandMapFromReferred(vector<string> authors,vector<string>citedAuthors)
 		
 		if(f==0)
 		{
-			it=citedAuthors.begin();
-		
-			citedAuthors.insert(it,s);
+			citedAuthors.insert(citedAuthors.begin(),s);
 			
 			citmap.pb(citedAuthors);
 		

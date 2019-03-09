@@ -1,4 +1,4 @@
-/* To show the name of the persons who has been cited by a author using 2D vector */ 
+/* To show the name of the persons who has been cited by an author using 2D vector */ 
 #include<bits/stdc++.h>
 #define pb push_back
 using namespace std;

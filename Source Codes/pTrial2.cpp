@@ -9,9 +9,8 @@ int main (void)
 	ifstream iFile;
 	ofstream oFile;
 	
-	string s,tmp="",tmp2="";
-	char ch;
-	int i=0;
+	string s,tmp="";
+	int i;
 	
 	iFile.open("/home/pranto/Downloads/sample.pdf");
 	oFile.open("/home/pranto/Desktop/New/SPL-1/text.txt");
@@ -33,13 +32,12 @@ int main (void)
 					tmp+=(s+' ');
 					iFile >> s;
 				}
+				tmp.erase(tmp.begin());
+				tmp.erase(tmp.end()-2);
 				
-				for(i=0;i<tmp.length()-2;i++)
-					tmp2+=tmp[i];
+				oFile << tmp << endl;
 				
-				oFile << tmp2 << endl;
-				
-				tmp="";tmp2="";	
+				tmp="";	
 				
 			}
 			iFile >> s;

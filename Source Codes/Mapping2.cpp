@@ -62,14 +62,28 @@ void traverseTree(vector<Node*> roots)
 	}   		 
 }
 bool r=0;
- 
 bool crossCheck(Node* a, Node *b)
 {
+	bool repeat;
+	Node *p;
+	int j;
 	
 	if(a->name == b->name)
 	{
 		for(int j=0;j < b->child.size();j++)
-	 		a-> child.push_back(b->child[j]);
+		{	
+			repeat=0;
+			
+			for(int k=0;k< a->child.size();k++)
+			{
+	 			if(b->child[j]->name == a->child[k]->name)
+	 			{
+	 				repeat=1; break;
+	 			}	
+	 		}
+	 		if(repeat==0)
+	 			a-> child.push_back(b->child[j]);
+	 	}
 	 	
 	 	r=1;
 	 			
@@ -83,11 +97,23 @@ bool crossCheck(Node* a, Node *b)
 		{
 			if(b->child[i]->name == a->name)
 			{
-				for(int j=0; j< b->child[i]->child.size();j++)
+				p = b->child[i];
+				
+				for(int k=0;k< p->child.size(); k++)
+				{
+					repeat=0;
 					
-					a->child.push_back(b->child[i]->child[j]);
-					
-				b->child.erase(b->child.begin()+i);	
+					for(j=0; j< a->child.size();j++)
+					{
+						if(p->child[k]->name == a->child[j]->name)
+						{
+							repeat=1; break;
+						}
+					}
+					if(repeat==0)	
+						a->child.push_back(p->child[k]);
+				}	
+				b->child.erase(b->child.begin()+i);
 			}
 		}
 		
@@ -103,7 +129,6 @@ bool crossCheck(Node* a, Node *b)
 		
 	}
 	
-
 }
 void interCheck(Node* n, Node* m)
 {

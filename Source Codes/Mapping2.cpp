@@ -21,7 +21,97 @@ Node *newNode(string name)
     temp->name = name; 
     return temp; 
 } 
+void seeConnection(){
 
+	string s,nul="";
+	set<string> ls,rs;
+	
+	int i,j,n;
+	Node* p;
+	queue<Node*> q;
+	getline(cin,s);
+	getline(cin,s);
+	
+	for(int a=0;s[a];a++)
+		nul+=' ';
+	
+	if(roots.empty()) return;
+	
+	for(i=0;i<roots.size();i++)
+	{
+		q.push(roots[i]);
+		
+		while(!q.empty())
+		{
+			n=q.size();
+			
+			while(n>0)
+			{
+				p=q.front();
+				
+				if(p->name==s)
+				{
+					for(int g=0; g<p->child.size(); g++)
+					{
+						rs.insert(p->child[g]->name);
+						//cout<<"rv.back(): "<< rs.back() << endl;
+					}
+				}
+				if(p->child.size()!=0)
+				{
+					for(j=0;j<p->child.size();j++)
+					{
+						if(s==p->child[j]->name)
+						{
+							ls.insert(p->name);
+							
+							//cout<< "lv.back(): "<< ls.back() << endl;
+							
+							for(int g=0; g<p->child[j]->child.size(); g++)
+							{
+								rs.insert(p->child[j]->child[g]->name);
+								//cout<<"rv.back(): "<< rs.back() << endl;
+							}
+						
+						}
+						q.push(p->child[j]);
+					}
+				
+				}
+				n--;
+				q.pop();
+			}
+		}
+	}   		 
+	
+	vector<string> lv(ls.begin(),ls.end());
+	vector<string> rv(rs.begin(),rs.end());
+	
+	ls.clear();rs.clear();
+	
+	cout << lv.back() <<" ------>> " << s << " ------>> "<< rv.back() <<endl;
+	
+	lv.pop_back();rv.pop_back();
+	
+	while(!lv.empty() or !rv.empty())
+	{
+		if(!lv.empty() and !rv.empty())
+		{
+			cout<< lv.back()<< "          " << nul << "          " << rv.back() << endl;
+			lv.pop_back();rv.pop_back();
+		}
+		if(lv.empty() and !rv.empty())
+		{
+			cout<< nul<< "          " << nul << "          "<< rv.back() << endl;
+			rv.pop_back();
+		}
+		if(!lv.empty() and rv.empty())
+		{
+			cout<< lv.back() << "          " << nul << "          "<< nul << endl;
+			lv.pop_back();
+		}
+	}
+}
 void traverseTree(vector<Node*> roots) 
 { 
    	int i,j,n;
@@ -65,7 +155,7 @@ bool r=0;
 bool crossCheck(Node* a, Node *b)
 {
 	bool repeat;
-	Node *p;
+	Node *p,*q;
 	int j;
 	
 	if(a->name == b->name)
@@ -113,7 +203,11 @@ bool crossCheck(Node* a, Node *b)
 					if(repeat==0)	
 						a->child.push_back(p->child[k]);
 				}	
-				b->child.erase(b->child.begin()+i);
+				
+				for(int g=0; g< b->child[i]->child.size(); g++)
+				{
+					b->child[i]->child.erase(b->child[i]->child.begin()+g);
+				}
 			}
 		}
 		
@@ -122,7 +216,12 @@ bool crossCheck(Node* a, Node *b)
 			r=crossCheck(a,b->child[i]);
 			
 			if(r){
-				b->child.erase(b->child.begin()+i);
+				
+				for(int g=0; g< b->child[i]->child.size(); g++)
+				{
+					b->child[i]->child.erase(p->child[i]->child.begin()+g);
+				}
+				
 				r=0;				
 			}	
 		}	

@@ -4,7 +4,8 @@ using namespace std;
 
 ifstream iFile;
 ofstream oFile;
-bool book=0, bChap=0, art=0,con=0,proc=0;
+int spc=0;
+bool book=0, bChap=0, art=0,con=0,proc=0, electricB=0,electricJ=0;
 
 void getNames(string s)
 {
@@ -12,9 +13,8 @@ void getNames(string s)
 	string w,tmp="",cs;
 	stringstream iss(s);
 	
-	iss >> w;
 	
-	while(true)
+Skip:while(iss >> w)
 	{
 		if(name==0)
 		{
@@ -25,9 +25,11 @@ void getNames(string s)
 			if(cs[cs.length()-1]==',')
 			{
 				name=1;
+				fn=0;
 				goto Skip;
 			}
 			else{
+
 				string sub="</firstname> <lastname> ";
 				
 				for(int i=tmp.length()-2;;i--)
@@ -44,6 +46,7 @@ void getNames(string s)
 				oFile << tmp << " </name>\n";
 				tmp="";
 				name=0;
+				fn=0;
 				hlprI=0;
 			}
 		}	
@@ -75,9 +78,22 @@ void getNames(string s)
 					name=1;	
 				}
 			}
+			else if(w=="Md."||w=="MD.")
+			{
+				if(fn==0){
+					tmp+="<firstName> "+w+' ';
+					fn=1;
+					name=1;
+				}
+				else
+				{
+					tmp+=w+' ';
+					name=1;	
+				}
+			}
 			else
 			{
-				if(w[w.length()-3]==46)
+				if(w[w.length()-3]==46 || w[w.length()-3]=='-')
 				{
 					tmp+="<firstName> "+w+' ';
 					fn=1;
@@ -111,9 +127,6 @@ void getNames(string s)
 		}
 		
 		cs=w;
-
-Skip:	iss >> w;
-
 	}
 }
 void extractBChap(string s)
@@ -121,8 +134,9 @@ void extractBChap(string s)
 	string w,tmp="";
 	stringstream iss(s);
 	
-	while(iss >> w && w[0]!=34)
+	while(iss >> w && (int)w[0]!=-30 && w[0]!=34)
 	{
+		cout<< w[0] << endl;
 		tmp+=w+' ';
 	}
 	
@@ -131,14 +145,14 @@ void extractBChap(string s)
 	tmp="";
 	oFile << "</authors>\n<chapterTitle> ";
 	
-	while(w[w.length()-1]!=34)
+	while((int)w[w.length()-1]!=-99 && w[w.length()-1]!=34)
 	{
 		tmp+=w+' ';
 		iss >> w;
 	}
 	tmp+=w;
-	tmp.erase(tmp.begin());
-	tmp.erase(tmp.end()-2,tmp.end());
+	//tmp.erase(tmp.begin());
+	//tmp.erase(tmp.end()-2,tmp.end());
 
 	oFile << tmp <<"</chapterTitle>\n";
 	tmp="";
@@ -197,11 +211,18 @@ void extractBChap(string s)
 
 void extractBook(string str)
 {
+	bool bn=1;
 	string w,tmp="";
 	stringstream iss(str);
 	
 	while(iss >> w)
 	{
+		if(w[0]=='"' || (int)w[0]==-30) 
+		{
+			bn=0;
+			break;
+		}
+		
 		if(w.length()>2 && (w[w.length()-1]==46 && w[w.length()-3]!=46))
 		{
 			tmp+=w+' ';
@@ -210,6 +231,7 @@ void extractBook(string str)
 		else
 			tmp+=w+' ';
 	}
+	
 	//cout<< tmp << endl;
 	oFile << "<authors>\n";
 	
@@ -219,16 +241,16 @@ void extractBook(string str)
 	
 	tmp="";
 	
-	iss >> w;
+	if(bn) iss >> w;
 
-	while(w[w.length()-1]!=46)
+	while(w[w.length()-1]!=46 && (int)w[w.length()-1]!=-99)
 	{
 		tmp+=w+' ';
 		iss >> w;
 	}
 	tmp+=w;
 	
-	tmp.erase(tmp.end()-1);
+	//tmp.erase(tmp.end());
 
 	oFile << tmp << " </book>\n";
 
@@ -250,7 +272,7 @@ void extractArticle(string s)
 	string w,tmp="";
 	stringstream iss(s);
 	
-	while(iss >> w && w[0]!=34)
+	while(iss >> w && w[0]!=34 && (int)w[0]!=-30)
 	{
 		tmp+=w+' ';
 	}
@@ -260,14 +282,14 @@ void extractArticle(string s)
 	tmp="";
 	oFile << "</authors>\n<article> ";
 
-	while(w[w.length()-1]!=34)
+	while(w[w.length()-1]!=34 && w[w.length()-1]!=-99)
 	{
 		tmp+=w+' ';
 		iss >> w;
 	}
 	tmp+=w;
 	
-	tmp.erase(tmp.end()-2);
+	//tmp.erase(tmp.end()-2);
 
 	oFile << tmp << " </article>\n";
 
@@ -289,7 +311,7 @@ void extractConferenceProc(string s)
 	string w,tmp="";
 	stringstream iss(s);
 	
-	while(iss >> w && w[0]!=34)
+	while(iss >> w && w[0]!=34 && (int)w[0]!=-30)
 	{
 		tmp+=w+' ';
 	}
@@ -299,14 +321,14 @@ void extractConferenceProc(string s)
 	tmp="";
 	oFile << "</authors>\n<article> ";
 
-	while(w[w.length()-1]!=34)
+	while(w[w.length()-1]!=34 && (int)w[w.length()-1]!=-99)
 	{
 		tmp+=w+' ';
 		iss >> w;
 	}
 	tmp+=w;
 	
-	tmp.erase(tmp.end()-2);
+	//tmp.erase(tmp.end()-2);
 
 	oFile << tmp << " </article>\n";
 
@@ -330,35 +352,36 @@ void extractConference(string s)
 	string w,tmp="";
 	stringstream iss(s);
 	
-	while(iss >> w && w[0]!=34)
+	while(iss >> w && (int)w[0]!=-30 && w[0]!=34)
 	{
 		tmp+=w+' ';
 	}
 	
 	oFile << "<authors>\n";
+	cout << tmp << endl;
 	getNames(tmp);
 	tmp="";
 	oFile << "</authors>\n<paper> ";
 
-	while(w[w.length()-1]!=34)
+	while(((int)w[w.length()-1]!=-99) && w[w.length()-1]!=34)
 	{
 		tmp+=w+' ';
 		iss >> w;
 	}
 	tmp+=w;
 	
-	tmp.erase(tmp.begin());
-	tmp.erase(tmp.end()-2,tmp.end());
+	//tmp.erase(tmp.begin());
+	//tmp.erase(tmp.end()-2,tmp.end());
 
 	oFile << tmp << " </paper>\n";
 
 	tmp="";
 	
-	while(iss >> w) 
+	/*while(iss >> w) 
 	{
 		if(w=="Rec.") break;
 		if(w=="the" ) break;
-	}
+	}*/
 	
 	oFile <<"<conference> ";
 	
@@ -371,22 +394,147 @@ void extractConference(string s)
 	proc=0;
 
 }
-void getChunk(string str)
+void extractEJ(string s)
+{
+	string w,tmp="";
+	stringstream iss(s);
+	
+	while(iss >> w && w[0]!='(')
+	{
+		tmp+=w+' ';
+	}
+	
+	oFile << "<authors>\n";
+
+	getNames(tmp);
+	
+	tmp="";
+	
+	oFile << "</authors>\n<article> ";
+
+	while(((int)w[0]!=-30) && w[0]!=34)
+	{
+		iss >> w;
+	}
+	
+	while(((int)w[w.length()-1]!=-99) && w[w.length()-1]!=34)
+	{
+		tmp+=w+' ';
+		iss >> w;
+	}
+	
+	tmp+=w;
+	//tmp.erase(tmp.begin());
+	//tmp.erase(tmp.end()-2,tmp.end());
+
+	oFile << tmp << " </article>\n";
+
+	tmp="";
+	
+	while(iss >> w && w[0]!='[') 
+	{
+		tmp+=w+' ';
+	}
+	
+	oFile <<"<journal> "+tmp+" </journal>\n";
+	
+	tmp="";
+	
+	while(iss >> w && w!="Available:"){}
+	
+	while(iss >> w && w[0]!='[')
+	{
+		tmp+=w+' ';
+	}
+	oFile <<"<source> "+tmp+" </source>\n";
+	
+	tmp="";
+	electricJ=0;
+
+}
+void extractEB(string s)
+{
+	string w,tmp="";
+	stringstream iss(s);
+	
+	while(iss >> w && w[0]!='(')
+	{
+		tmp+=w+' ';
+	}
+	
+	oFile << "<authors>\n";
+
+	getNames(tmp);
+	
+	tmp="";
+	
+	oFile << "</authors>\n<book> ";
+
+	while(w[w.length()-1]!=')')
+	{
+		iss >> w;
+	}
+	
+	while(iss >> w && w[0]!='[')
+	{
+		tmp+=w+' ';
+	}
+	
+	//tmp.erase(tmp.begin());
+	//tmp.erase(tmp.end()-2,tmp.end());
+
+	oFile << tmp << " </book>\n";
+
+	tmp="";
+	
+	while(iss >> w && w!="Available:"){}
+	
+	while(iss >> w)
+	{
+		tmp+=w+' ';
+	}
+	oFile <<"<source> "+tmp+" </source>\n";
+	
+	tmp="";
+	electricB=0;
+
+
+}
+void getChunk(string str) // “=-30 ”=-99
 {
 	string store;
 	store=str;
 	bool brk=0;
-	
+	int loop=0;
 	string words;
 	stringstream iss(str);
-
+	
 	while(iss >> words)
 	{
-		if(words[words.length()-1]==34)
+		if(words[0]=='(' && (words[1]>47 && words[1]<58 && words[2]>47 && words[2]<58 && words[3]>47 && words[3]<58))
 		{
-			iss >> words;
+			while(iss >> words && loop <5) 
+			{
+				if((int)words[0]==-30 || words[0]==34)
+				{
+					electricJ=1;
+					break;
+				}
+				loop++;
+			}
+			if(electricJ==0)electricB=1;
+			brk=1;
+			break;
+		}
+		if(brk) break;
+	
+		if(words[words.length()-1]==-99)
+		{
+			//cout<<words<<' ' <<words[0] <<' ' << (int)words[0] << endl;
+			
+			while(iss >> words){
 
-			if(words=="in") { 
+			if(words=="in" || words=="on") { 
 				
 				while(iss >> words){
 
@@ -395,14 +543,15 @@ void getChunk(string str)
 						brk=1;
 						break;
 					}
-					else if(words=="ed.,"){
+					else if(words=="ed.,"||words=="vol."){
 						bChap=1;
 						brk=1;
 						break;
 					}
-					else if(words=="Conf.")
+					else if(words=="Conf." || words=="Conference")
 					{
 						con=1;
+						cout<< con << endl;
 						brk=1;
 						break;
 					}
@@ -415,38 +564,100 @@ void getChunk(string str)
 				con=1;
 				break;
 			}
+			
 			else { 
 				art=1;
 				break;
 				}
+				
 			}
+			if(brk) break;	
+		}	
 	}
-
-
-
-	if(art==0 && bChap==0 && con==0 && proc==0) book=1;
+	
+	if(art==0 && bChap==0 && con==0 && proc==0 && electricJ==0 && electricB==0) book=1;
 	
 	if(bChap==1) extractBChap(store);
-	if(book==1) extractBook(store);
+	if(book==1) extractBook(store);	
 	if(art==1) extractArticle(store);
 	if(proc==1) extractConferenceProc(store);
 	if(con==1) extractConference(store);
+	if(electricJ) extractEJ(store);
+	if(electricB) extractEB(store);
 	bChap=0;
 	book=0;
 	art=0;
 	proc=0;
 	con=0;
+	electricB==0; 
+	electricJ==0; 
 }
+bool rootAuthors(string s)
+{
+	string w;
+	stringstream sr(s);
+	
+	while(sr >> w)
+	{
+		if(w=="and" || w[w.length()-1]==',')
+		{
+			getNames(s+'.');
+			return true;
+		}
+	}
+	return false;
 
+}
+bool getmail(string s)
+{
+	bool bt=0;
+	string w;
+	stringstream sr(s);
+	
+	for(int i=0;i<s.length();i++)
+	{
+		if(s[i]==',')
+		{
+			bt=1;
+			break;
+		}
+	}
+	if(bt)
+	{
+		while(sr >> w)
+		{
+			oFile <<"<mail> "<< w << " </mail>\n";	
+		}
+		return true;
+	}
+	return false;
+
+
+}
 int main()
 {
-	string s,tm0="",newtmp="",oldtmp,title,author;
+	string fileName,s,tm0="",newtmp="",oldtmp,title,author;
 	int i=0,j=0,cit=1;
-	bool fl=0,hbjb=0,t=0,f=1,ci=0,ad=0;
-	vector<int> citations;
+	bool fl=0,hbjb=0,t=0,f=1,ci=0,ad=0,m=0,ra=0,rm=0;
 	
-	iFile.open("/home/pranto/Desktop/New/SPL-1/rawtext4.txt");
-	oFile.open("/home/pranto/Desktop/New/SPL-1/xml1.xml");
+	cout<<"filename: ";
+	cin >> fileName;
+	
+	iFile.open(fileName);
+	
+	for(int v=0;fileName[v];v++)
+	{
+		if(fileName[v]=='.') break;
+		
+		tm0+=fileName[v];
+	}
+	tm0+=".xml";
+	
+	oFile.open(tm0);
+	
+	tm0="";
+	
+	
 	
 	if(iFile.is_open() && oFile.is_open())
 	{
@@ -462,6 +673,7 @@ int main()
 			
 			author = s;
 			
+				
 		while(true)
 		{
 			
@@ -471,11 +683,15 @@ int main()
 			
 			while(iss >> word)
 			{
-				if(word=="Department")
+				if(word=="Department" || word=="School" || word=="Institute")
 				{
 					oFile <<"<title> " << title << " </title>\n";
 					oFile << "<authors>\n";
 					oFile << "<author>\n";
+					
+					ra=rootAuthors(author);
+					
+					if(!ra){
 					
 					stringstream ias(author);
 					
@@ -506,6 +722,7 @@ int main()
 					tm0="";
 					
 					hlprI=0;
+					}
 					
 					oFile <<"<Department> "+ s +" </Department>\n";
 					t=1;
@@ -547,17 +764,39 @@ int main()
        		 	{
        		 		if(word[i]=='@'){
        		 			
-       		 			newtmp+=("<mail>"+oldtmp+"</mail>");
-       		 			oFile << newtmp << endl;
-       		 			newtmp="";
-       		 			hbjb=1;
+       		 			rm=getmail(s);
+       		 			
+       		 			if(!rm){
+       		 				newtmp+=("<mail>"+oldtmp+"</mail>");
+       		 				oFile << newtmp << endl;
+       		 				newtmp="";
+       		 				hbjb=1;
+       		 			}
+       		 			else
+       		 			{
+       		 				hbjb=1;
+       		 				break;
+       		 			}	
        		 		}
   
        		 	}
+				if(rm)
+				{ 
+					rm=0;
+					break;
+       		 	}
        		 	
-       		 	if(word=="Department")
+       		 	if(word.substr(0,8)=="Abstract"|| word.substr(0,8)=="ABSTRACT-")
        		 	{
-       		 		newtmp+=("<Department>"+oldtmp+"</Department>");
+       		 		oFile << "</author>\n</authors>\n<article>\n" << s << endl;
+			 		fl=1;
+			 		hbjb=1;
+			 		break;
+       		 	}
+       		 	
+       		 	else if(word=="Department")
+       		 	{
+       		 		newtmp+=("<Department> "+oldtmp+" </Department>");
        		 			oFile << newtmp << endl;
        		 			newtmp="";
        		 			hbjb=1;
@@ -565,7 +804,7 @@ int main()
        		 	}
        		 	else if(word=="University")
        		 	{
-       		 		newtmp+=("<University>"+oldtmp+"</University>");
+       		 		newtmp+=("<University> "+oldtmp+" </University>");
        		 			oFile << newtmp << endl;
        		 			newtmp="";
        		 			hbjb=1;
@@ -573,19 +812,37 @@ int main()
        		 	}
        		 	else if(word=="School")
        		 	{
-       		 		newtmp+=("<school>"+oldtmp+"</school>");
+       		 		newtmp+=("<school> "+oldtmp+" </school>");
        		 			oFile << newtmp << endl;
        		 			newtmp="";
        		 			hbjb=1;
        		 			break;
        		 	}
+       		 	else if(word=="Institute")
+       		 	{
+       		 		newtmp+=("<institute> "+oldtmp+" </institute>");
+       		 			oFile << newtmp << endl;
+       		 			newtmp="";
+       		 			hbjb=1;
+       		 			break;
+       		 	}
+       		 		
        		 	else if(word[word.length()-1]==',' && ad==0)
        		 	{ 
+       		 		for(int i=0;i<word.length();i++)
+       		 		{
+       		 			if(word[i]=='@'){ m=1;break;}
+       		 		}
+       		 		if(!m){
+       		 		
        		 		newtmp+=("<address>"+oldtmp+"</address>");
        		 			oFile << newtmp << endl;
        		 			newtmp="";
        		 			hbjb=1;
+       		 		}
+       		 		else m=0;
        		 	}
+       		 	
        		 	else if(word=="January"||word=="February"||word=="March"||word=="April"||word=="May"||word=="June"||word=="July"||word=="August"||
        		 		word=="September"||word=="October"||word=="November"||word=="December")
        		 	{
@@ -593,9 +850,10 @@ int main()
        		 			oFile << newtmp << endl;
        		 			newtmp="";
        		 			hbjb=1;
-					ad=1;
+       		 			ad=1;
 
        		 	}
+       		 	
        		 		
        		 	else
        		 		tm0+=word+' ';
@@ -634,13 +892,13 @@ int main()
        		 		newtmp="";	
        		 	}
 			       		 
-       		 	else tm0="";	
-       		
-			ad=0;
+       		 else tm0="";	
        		 
-			getline(iFile,s);
+       		 ad=0;
+       		 
+       		 getline(iFile,s);
        		
-       		 	oldtmp=s;	 		
+       		 oldtmp=s;	 		
 			}
 		
 			while(!iFile.eof()){
@@ -693,8 +951,8 @@ int main()
 								
 							if(f==1)
 							{
-								int cnt=1;
-								int id=0;
+								//int cnt=1;
+								//int id=0;
 								
 								for(int c=1; c <tm0.length();c++)
 								{
@@ -723,18 +981,17 @@ int main()
 
 			if((s=="References"||s=="Reference"||s=="REFERENCES"||s=="REFERENCE"))
 			{
-				int cnt=0;
 				iFile >> s;
 				
 				while(!iFile.eof())
 				{
-					if(s[0]=='[')
+					if(s[0]=='[' && s.length()<=4)
 						oFile<< "<citationid> ["<< cit++ << "] </citationid>\n";
 				
 					
 						while(iFile >> s && !iFile.eof()){
 							
-							if(s[0]!='[')
+							if(s[0]!='[' || (s[0]=='[' && (s[1]<48 || s[1]>57))) 
 								tm0+=s+' ';
 							else 
 								break;	
@@ -743,7 +1000,6 @@ int main()
 						getChunk(tm0);
 						tm0="";
 					}
-					cnt=0;
 				
 				}
 			iFile >> s;		

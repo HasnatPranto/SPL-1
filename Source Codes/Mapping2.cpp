@@ -1,19 +1,18 @@
-/***To create a tree of the cited authors***/
-
-/**Took help from "//https://www.geeksforgeeks.org/generic-tree-level-order-traversal/" & got the base idea for creating nodes & traversing the tree**/
-    
 #include <bits/stdc++.h>
  
 using namespace std;
 
 struct Node 
 { 
-    string name; 
+    string name;
+    string linker=""; 
     vector<Node *>child;
 };
 
 vector<Node*> roots;
 vector<Node*> tmpRoots;
+vector<Node*> lev3roots;
+bool f=0;
 
 Node *newNode(string name) 
 { 
@@ -21,10 +20,15 @@ Node *newNode(string name)
     temp->name = name; 
     return temp; 
 } 
+void modNode(Node *n, string ref) 
+{ 
+    n->linker=ref; 
+} 
+
 void seeConnection(){
 
 	string s,nul="";
-	set<string> ls,rs;
+	set<string>rs,ls;
 	
 	int i,j,n;
 	Node* p;
@@ -54,8 +58,8 @@ void seeConnection(){
 					for(int g=0; g<p->child.size(); g++)
 					{
 						rs.insert(p->child[g]->name);
-						//cout<<"rv.back(): "<< rs.back() << endl;
 					}
+					
 				}
 				if(p->child.size()!=0)
 				{
@@ -64,15 +68,6 @@ void seeConnection(){
 						if(s==p->child[j]->name)
 						{
 							ls.insert(p->name);
-							
-							//cout<< "lv.back(): "<< ls.back() << endl;
-							
-							for(int g=0; g<p->child[j]->child.size(); g++)
-							{
-								rs.insert(p->child[j]->child[g]->name);
-								//cout<<"rv.back(): "<< rs.back() << endl;
-							}
-						
 						}
 						q.push(p->child[j]);
 					}
@@ -87,11 +82,28 @@ void seeConnection(){
 	vector<string> lv(ls.begin(),ls.end());
 	vector<string> rv(rs.begin(),rs.end());
 	
-	ls.clear();rs.clear();
+	ls.clear();
+	rs.clear();
 	
-	cout << lv.back() <<" ------>> " << s << " ------>> "<< rv.back() <<endl;
+	bool spcl=0,spcr=0;
 	
-	lv.pop_back();rv.pop_back();
+	if(!lv.empty()){
+		cout << lv.back();
+		lv.pop_back();
+		spcl=1;
+	}
+	if(!spcl)cout<< nul;
+	
+	cout <<" ------>> " << s << " ------>> ";
+	
+	if(!rv.empty()){
+		cout << rv.back()<<'\n';
+		rv.pop_back();
+		spcr=1;
+	}
+	
+	if(!spcr)cout<< '\n';
+	//lv.pop_back();rv.pop_back();
 	
 	while(!lv.empty() or !rv.empty())
 	{
@@ -136,11 +148,11 @@ void traverseTree(vector<Node*> roots)
 				{
 					cout<< p->name <<" Refers:\n";
 				
-					sort(p->child.begin(),p->child.end());
+					//sort(p->child.begin(),p->child.end());
 				
 					for(j=0;j<p->child.size();j++)
 					{
-						cout<<'\t' << p->child[j]->name << endl;
+						cout<<'\t' << p->child[j]->name << endl <<"\tReferred Doc:\n\t"<< p->child[j]->linker << endl;
 						q.push(p->child[j]);
 					}
 				
@@ -151,127 +163,76 @@ void traverseTree(vector<Node*> roots)
 		}
 	}   		 
 }
-bool r=0;
-bool crossCheck(Node* a, Node *b)
+
+void visualizeTree(Node *p,int dep)
 {
-	bool repeat;
-	Node *p,*q;
-	int j;
+	int i;
 	
-	if(a->name == b->name)
-	{
-		for(int j=0;j < b->child.size();j++)
-		{	
-			repeat=0;
-			
-			for(int k=0;k< a->child.size();k++)
-			{
-	 			if(b->child[j]->name == a->child[k]->name)
-	 			{
-	 				repeat=1; break;
-	 			}	
-	 		}
-	 		if(repeat==0)
-	 			a-> child.push_back(b->child[j]);
-	 	}
-	 	
-	 	r=1;
-	 			
-	 	return r;
+	if(p->child.size()==0){
+		for(i=0;i<dep;i++)
+				cout<<'\t';	
+		cout<<p->name << endl;
 	}
-	if(b->child.empty()) return 0;
 	
 	else
 	{
-		for(int i=0;i<b->child.size();i++)
-		{
-			if(b->child[i]->name == a->name)
-			{
-				p = b->child[i];
-				
-				for(int k=0;k< p->child.size(); k++)
-				{
-					repeat=0;
-					
-					for(j=0; j< a->child.size();j++)
-					{
-						if(p->child[k]->name == a->child[j]->name)
-						{
-							repeat=1; break;
-						}
-					}
-					if(repeat==0)	
-						a->child.push_back(p->child[k]);
-				}	
-				
-				for(int g=0; g< b->child[i]->child.size(); g++)
-				{
-					b->child[i]->child.erase(b->child[i]->child.begin()+g);
-				}
-			}
-		}
-		
-		for(int i=0;i<b->child.size();i++)
-		{
-			r=crossCheck(a,b->child[i]);
-			
-			if(r){
-				
-				for(int g=0; g< b->child[i]->child.size(); g++)
-				{
-					b->child[i]->child.erase(p->child[i]->child.begin()+g);
-				}
-				
-				r=0;				
-			}	
-		}	
-		
-	}
-	
-}
-void interCheck(Node* n, Node* m)
-{
-	if(n->child.empty()) return;
-	
-	for(int i=0;i<n->child.size();i++)
-	{
-		interCheck(n->child[i],m);
-		
-		crossCheck(n->child[i],m);
-		
-	}
-}
-void check()
-{
-	for(int a=0;a < roots.size()-1;a++)
-	{
-		for(int b=a+1;b< roots.size();b++)
-		{
-			r=crossCheck(roots[a],roots[b]);
-			
-			if(r)
-			{
-				roots.erase(roots.begin()+b);
-				r=0;
-			}
-			
-			for(int c=0;c < roots[a]->child.size(); c++)
-			{	
-				interCheck(roots[a]->child[c], roots[b]);
-			}
-		}
-	}
-}   
+		for(i=0;i<dep;i++)
+				cout<<'\t';	
+		dep++;
+		cout<< p->name << endl;
 
+		for(i=0;i<p->child.size();i++)
+		{		
+			visualizeTree(p->child[i],dep);
+		}
+	}
+
+}
+
+void tmpInsert(Node *p, Node *q)
+{
+	int i;
+	bool rep;
+	if(p->name==q->name)
+	{
+		f=1;
+		
+		for(int i=0;i<p->child.size();i++)
+		{
+			rep=0;
+			
+			for(int j=0;j<q->child.size();j++)
+			{
+				if(p->child[i]->name==q->child[j]->name)
+				{
+					rep=1;
+					break;
+				}
+				
+			}
+			if(!rep){
+				q->child.push_back(p->child[i]);
+			}	
+		}
+	}
+	
+	else
+	{	
+		for(i=0;i<q->child.size();i++)
+		{	
+			tmpInsert(p,q->child[i]);
+		}
+	}
+}
 int main() 
 { 
 	
-	string str="", w, fullName="",file;
-	int pdf=0;
-	bool root=0;
+	string str="", w, fullName="",file,book;
+	int pdf=0,dep=0;
+	bool root=0,found=0;
 	ifstream iFile;
 	
-	while(pdf<=2)
+	while(pdf<3)
 	{
 		cout<<"filename: ";
 		
@@ -312,7 +273,7 @@ int main()
 				}
 			}
 			
-			while(getline(iFile,str) && str!="<reference>" )
+			while(getline(iFile,str) && (str!="<reference>" || str!="<Reference>" ||str!="<REFERENCE>") )
 			
 			while(!iFile.eof())
 			{
@@ -328,34 +289,98 @@ int main()
 						
 							fullName.erase(fullName.end()-1);	
 							
-							for(int i=0;i<tmpRoots.size();i++)
-							{
-								(tmpRoots[i]->child).push_back(newNode(fullName));
-							}
+							lev3roots.push_back(newNode(fullName));
 
 							fullName="";
-							
 						}
 						
-						else if(str!="<name>" and str!= "<firstName>" and str!="</firstname>" and str!= "<lastname>" and str!="</lastname>" and str!="</authors>")
+						else if(str!="<name>" and str!= "<firstName>" and str!="</firstname>" and str!= "<lastname>" and 
+						str!="</lastname>" and str!="</authors>")
 							
 							fullName+=str+' ';
 					}
-				
+					while(true){
+					
+						getline(iFile,str);
+						
+						string w;
+						bool marker=0;
+						
+						stringstream iss(str);
+						
+						while(iss >> w)
+						{
+							if(w=="<book>"||w=="<article>"||w=="<paper>")
+							{
+								while(iss >> w)
+								{
+									if(w=="</book>"||w=="</article>"||w=="</paper>") break;
+									else book+=w+' ';
+								
+								}
+								marker=1;
+								break;
+							}
+							else
+								break;
+						}
+						if(marker) break;
+					}
+					for(int i=0;i<lev3roots.size();i++)
+					{
+						lev3roots[i]->linker=book;
+					}
+					book="";
+					
+					for(int i=0;i<tmpRoots.size();i++)
+					{
+						for(int j=0;j<lev3roots.size();j++)
+						
+							(tmpRoots[i]->child).push_back(lev3roots[j]);
+					}
+					lev3roots.clear();
 				}
 			
 			}
-			roots.insert(roots.end(), tmpRoots.begin(), tmpRoots.end());
+			if(roots.empty())
+			{
+				roots.insert(roots.begin(), tmpRoots.begin(), tmpRoots.end());
+			}
+			else
+			{	
+   				for(int r=0;r<tmpRoots.size();r++)
+   				{
+   					f=0;
+   					for(int j=0;j<roots.size();j++)
+   					{
+   						tmpInsert(tmpRoots[r],roots[j]);
+   					}
+   					if(f==0)
+   					{
+   						roots.push_back(tmpRoots[r]);
+   					}
+   				}
+   			}		
+   			lev3roots.clear();
+		
 			tmpRoots.clear();	
 		}
 		iFile.close();
 		pdf++;
 	}
-   	check();
    	
     cout << "Reference list\n"; 
     
-    traverseTree(roots); 
+  //traverseTree(roots);
+   	
+   	cout<< roots.size() << endl;
+   	
+   	for(int r=0;r<roots.size();r++)
+   	{
+   		visualizeTree(roots[r],dep);
+   	}
+   	seeConnection();
     
     return 0; 
 }  
+

@@ -171,7 +171,7 @@ void visualizeTree(Node *p,int dep)
 	if(p->child.size()==0){
 		for(i=0;i<dep;i++)
 				cout<<'\t';	
-		cout<<p->name << endl;
+		cout<<p->name << " ("<<p->linker<<") "<< endl;
 	}
 	
 	else
@@ -179,7 +179,7 @@ void visualizeTree(Node *p,int dep)
 		for(i=0;i<dep;i++)
 				cout<<'\t';	
 		dep++;
-		cout<< p->name << endl;
+		cout<< p->name << " ("<<p->linker<<")" << endl;
 
 		for(i=0;i<p->child.size();i++)
 		{		
@@ -193,7 +193,7 @@ void tmpInsert(Node *p, Node *q)
 {
 	int i;
 	bool rep;
-	if(p->name==q->name)
+	if(p->name==q->name && p->linker == q->linker)
 	{
 		f=1;
 		
@@ -203,7 +203,7 @@ void tmpInsert(Node *p, Node *q)
 			
 			for(int j=0;j<q->child.size();j++)
 			{
-				if(p->child[i]->name==q->child[j]->name)
+				if(p->child[i]->name==q->child[j]->name && p->child[i]->linker==q->child[j]->linker)
 				{
 					rep=1;
 					break;
@@ -227,13 +227,18 @@ void tmpInsert(Node *p, Node *q)
 int main() 
 { 
 	
-	string str="", w, fullName="",file,book;
-	int pdf=0,dep=0;
-	bool root=0,found=0;
+	string str="", w, fullName="",file,book="";
+	int pdf,dep=0;
+	bool root=0,found=0,t;
 	ifstream iFile;
 	
-	while(pdf<3)
+	cout << "How many files: ";
+	cin >> pdf;
+	
+	while(pdf--)
 	{
+		t=0;
+
 		cout<<"filename: ";
 		
 		cin >> file;
@@ -242,6 +247,26 @@ int main()
 	
 		if(iFile.is_open())
 		{
+			getline(iFile,str);
+			getline(iFile,str);
+			
+			if(!t)
+			{
+				getline(iFile,str);
+				
+				stringstream iss(str);
+			
+				while(iss >> w)
+				{
+					if(w=="<title>"||w=="</title>") continue;
+					
+					else 
+						book+=w+' ';
+				}
+				cout<< book << endl;	
+				t=1;		
+			
+			}
 			while(str!="</authors>")
 			{
 				getline(iFile,str);
@@ -272,6 +297,12 @@ int main()
 						break;
 				}
 			}
+			
+			for(int i=0;i<tmpRoots.size();i++)
+			{
+				tmpRoots[i]->linker=book;
+			}
+			book="";
 			
 			while(getline(iFile,str) && (str!="<reference>" || str!="<Reference>" ||str!="<REFERENCE>") )
 			
@@ -366,7 +397,7 @@ int main()
 			tmpRoots.clear();	
 		}
 		iFile.close();
-		pdf++;
+		
 	}
    	
     cout << "Reference list\n"; 
@@ -382,5 +413,4 @@ int main()
    	seeConnection();
     
     return 0; 
-}  
-
+} 

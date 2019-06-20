@@ -134,7 +134,7 @@ void extractBChap(string s)
 	string w,tmp="";
 	stringstream iss(s);
 	
-	while(iss >> w && (int)w[0]!=-30 && w[0]!=34)
+	while(iss >> w && (int)w[0]!=-109 && w[0]!=34)
 	{
 		cout<< w[0] << endl;
 		tmp+=w+' ';
@@ -145,7 +145,7 @@ void extractBChap(string s)
 	tmp="";
 	oFile << "</authors>\n<chapterTitle> ";
 	
-	while((int)w[w.length()-1]!=-99 && w[w.length()-1]!=34)
+	while((int)w[w.length()-1]!=-108 && w[w.length()-1]!=34)
 	{
 		tmp+=w+' ';
 		iss >> w;
@@ -217,7 +217,7 @@ void extractBook(string str)
 	
 	while(iss >> w)
 	{
-		if(w[0]=='"' || (int)w[0]==-30) 
+		if(w[0]=='"' || (int)w[0]==-109) 
 		{
 			bn=0;
 			break;
@@ -243,7 +243,7 @@ void extractBook(string str)
 	
 	if(bn) iss >> w;
 
-	while(w[w.length()-1]!=46 && (int)w[w.length()-1]!=-99)
+	while(w[w.length()-1]!=46 && (int)w[w.length()-1]!=-108)
 	{
 		tmp+=w+' ';
 		iss >> w;
@@ -272,7 +272,7 @@ void extractArticle(string s)
 	string w,tmp="";
 	stringstream iss(s);
 	
-	while(iss >> w && w[0]!=34 && (int)w[0]!=-30)
+	while(iss >> w && w[0]!=34 && (int)w[0]!=-109)
 	{
 		tmp+=w+' ';
 	}
@@ -282,7 +282,7 @@ void extractArticle(string s)
 	tmp="";
 	oFile << "</authors>\n<article> ";
 
-	while(w[w.length()-1]!=34 && w[w.length()-1]!=-99)
+	while(w[w.length()-1]!=34 && w[w.length()-1]!=-108)
 	{
 		tmp+=w+' ';
 		iss >> w;
@@ -311,7 +311,7 @@ void extractConferenceProc(string s)
 	string w,tmp="";
 	stringstream iss(s);
 	
-	while(iss >> w && w[0]!=34 && (int)w[0]!=-30)
+	while(iss >> w && w[0]!=34 && (int)w[0]!=-109)
 	{
 		tmp+=w+' ';
 	}
@@ -321,7 +321,7 @@ void extractConferenceProc(string s)
 	tmp="";
 	oFile << "</authors>\n<article> ";
 
-	while(w[w.length()-1]!=34 && (int)w[w.length()-1]!=-99)
+	while(w[w.length()-1]!=34 && (int)w[w.length()-1]!=-108)
 	{
 		tmp+=w+' ';
 		iss >> w;
@@ -352,7 +352,7 @@ void extractConference(string s)
 	string w,tmp="";
 	stringstream iss(s);
 	
-	while(iss >> w && (int)w[0]!=-30 && w[0]!=34)
+	while(iss >> w && (int)w[0]!=-109 && w[0]!=34)
 	{
 		tmp+=w+' ';
 	}
@@ -363,7 +363,7 @@ void extractConference(string s)
 	tmp="";
 	oFile << "</authors>\n<paper> ";
 
-	while(((int)w[w.length()-1]!=-99) && w[w.length()-1]!=34)
+	while(((int)w[w.length()-1]!=-108) && w[w.length()-1]!=34)
 	{
 		tmp+=w+' ';
 		iss >> w;
@@ -412,12 +412,12 @@ void extractEJ(string s)
 	
 	oFile << "</authors>\n<article> ";
 
-	while(((int)w[0]!=-30) && w[0]!=34)
+	while(((int)w[0]!=-109) && w[0]!=34)
 	{
 		iss >> w;
 	}
 	
-	while(((int)w[w.length()-1]!=-99) && w[w.length()-1]!=34)
+	while(((int)w[w.length()-1]!=-108) && w[w.length()-1]!=34)
 	{
 		tmp+=w+' ';
 		iss >> w;
@@ -515,7 +515,7 @@ void getChunk(string str) // “=-30 ”=-99
 		{
 			while(iss >> words && loop <5) 
 			{
-				if((int)words[0]==-30 || words[0]==34)
+				if((int)words[0]==-109 || words[0]==34)
 				{
 					electricJ=1;
 					break;
@@ -528,7 +528,7 @@ void getChunk(string str) // “=-30 ”=-99
 		}
 		if(brk) break;
 	
-		if(words[words.length()-1]==-99)
+		if(words[words.length()-1]==-108)
 		{
 			//cout<<words<<' ' <<words[0] <<' ' << (int)words[0] << endl;
 			
